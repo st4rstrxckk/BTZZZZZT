@@ -51,7 +51,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 //start position thingy Ltarget = 440 , Rtarget = 439
 
-@TeleOp(name="COMP TELE", group="COMP")
+@TeleOp(name="pain", group="COMP")
 //@Disabled
 public class teweop extends LinearOpMode {
 
@@ -61,16 +61,7 @@ public class teweop extends LinearOpMode {
 
     double SpeedAdjust = 1;
 
-    double SSVar = 5;
-
-    double dropVar = 50;
-    double liftVar = 350;
-
-
-    public static int CONESTART = 655;
-    public static int CONE5 = 570;
-    public static int CONE4 = 515;
-
+   
 
 
     double toggleTime = .25;
@@ -86,8 +77,10 @@ public class teweop extends LinearOpMode {
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-        robot.larm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.rarm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        //init lift motorrs
+        robot.L.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.R.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //robot.leftClaw.setPosition(L_OPEN);
 
 
@@ -111,23 +104,6 @@ public class teweop extends LinearOpMode {
 
 
 
-            if (gamepad1.right_trigger == 1){
-                grab();
-            } else if (gamepad1.left_trigger==1){
-                robot.lin.setPower(-1);
-                robot.rin.setPower(-1);
-            }else  {
-                robot.lin.setPower(0);
-                robot.rin.setPower(0);
-            }
-            if (gamepad1.square) {
-                lift(0);
-            }
-
-
-
-
-
             if (gamepad2.dpad_up) {
                 HIGH();
             } else if (gamepad2.dpad_left) {
@@ -138,51 +114,14 @@ public class teweop extends LinearOpMode {
                 MID();
             } else if (gamepad2.cross) {
                 START_POS();
-            } else if (gamepad2.square) {
-                FLIP();
             }
 
-            else if (gamepad2.triangle) {
-                //start cone
-                if (SSVar == 5){
-                    //intake 5
-                    lift(655);
-                }
-                else if (SSVar == 4) {
-                    //intake 4
-                    lift(550);
-                }
-                else if (SSVar == 3){
-                    //intake 3
-                    lift(450);
-
-                }
-                else if (SSVar==2){
-                    //intake 2
-                    lift(350);
-
-                }
-                else if (SSVar==1){
-                    //intake 2
-                    lift(230);
-
-                }
-
+           
             }
 
-//            else if (gamepad2.right_trigger==1) {
-//                grab();
-//            }
 
 
-            if (gamepad2.right_bumper) {
-                toggleR();
-            }
-            else if( gamepad2.left_bumper) {
-                toggleL();
-            }
-
-            telemetry.addData("SS", SSVar);
+    
 
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             //telemetry.addData("Endgame:", endgame);
@@ -199,17 +138,17 @@ public class teweop extends LinearOpMode {
             // Determine new target position, and pass to motor controller
             newTarget = (int) counts;
             //inches *
-            robot.larm.setTargetPosition(newTarget);
-            robot.rarm.setTargetPosition(newTarget);
+            robot.L.setTargetPosition(newTarget);
+            robot.R.setTargetPosition(newTarget);
 
             // Turn On RUN_TO_POSITION
-            robot.larm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            robot.rarm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.L.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.R.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             // reset the timeout time and start motion.
             runtime.reset();
-            robot.larm.setPower(Math.abs(-1)); //left arm positive
-            robot.rarm.setPower(Math.abs(1)); //right arm negative
+            robot.L.setPower(Math.abs(-1)); //left arm positive
+            robot.R.setPower(Math.abs(1)); //right arm negative
 
             while (opModeIsActive()
                     //&& (runtime.seconds() < timeoutS)
@@ -224,54 +163,25 @@ public class teweop extends LinearOpMode {
         }
     }
 
-    public void toggleR (){
-        runtime.reset();
-        if (SSVar <5) {
-            SSVar++;
-        }
-        while (opModeIsActive()
-                && (runtime.seconds() < toggleTime)
-        ) {
-            // Display it for the driver.
-            telemetry.addData("SS", SSVar);
-            telemetry.update();
-            drive();
-        }
-    }
-    public void toggleL (){
-        runtime.reset();
-        if (SSVar >1) {
-            SSVar--;
-        }
-        while (opModeIsActive()
-                && (runtime.seconds() < toggleTime)
-        ) {
-            // Display it for the driver.
-            telemetry.addData("SS", SSVar);
-            telemetry.update();
-            drive();
-        }
-    }
+   
 
     public void grab (){
-        robot.rin.setPower(1);
-        robot.lin.setPower(1);
+        robot.Lint.setPower(1);
+        robot.Rint.setPower(1);
         //drop intake 180
-        dropVar = robot.larm.getCurrentPosition() - 180;
+        dropVar = robot.L.getCurrentPosition() - 180;  //L was larm on both i might fix the naming conventions later i kinda hate it lol
         lift(dropVar);
-        robot.rin.setPower(0);
-        robot.lin.setPower(0);
+        robot.Rint.setPower(0);
+        robot.Lint.setPower(0);
 
-        liftVar = robot.larm.getCurrentPosition() + 380;
+        liftVar = robot.L.getCurrentPosition() + 380;
         lift(liftVar);
         if (gamepad1.left_trigger==1){
-            robot.lin.setPower(-1);
-            robot.rin.setPower(-1); }
+            robot.Lint.setPower(-1);
+            robot.Rint.setPower(-1); }
     }
 
-    //655 = cone start intake height
-    //cone 1 = 455
-    //start 4 = 600
+    //tune lift positions
 
     public void START_POS(){
         lift(230);
@@ -289,17 +199,12 @@ public class teweop extends LinearOpMode {
         lift(2900);
     }
 
-    public void CONE_START () {
-        lift(655);
-    }
-
     public void GROUND(){
 
     }
 
-    public void FLIP(){
-        lift(10);
-    }
+
+//TODO: change the drive eq to mecdrive one 
 
     private void drive() {
         robot.leftFront.setPower((-gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x) / SpeedAdjust);
