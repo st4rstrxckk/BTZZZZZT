@@ -25,6 +25,9 @@ public class PIDF_2Lift extends OpMode {
     public static int Rtarget = 0;
     private final double ticks_in_degree = 700/180.0; //look this up later please :"" 537.6 / 360.0   700/ 180.0
 
+
+
+
     //names of lift motors
     private DcMotorEx L;
     private DcMotorEx R;
@@ -71,3 +74,9 @@ public class PIDF_2Lift extends OpMode {
         telemetry.update();
     }
 }
+
+//         __  __     ______     __         ______
+///      \ \ _ \ \   /\  ___\   /\ \       /\  == \
+//        \ \  __ \  \ \  __\   \ \ \____  \ \  _-/
+//         \ \_\ \_\  \ \_____\  \ \_____\  \ \_\
+//          \/_/\/_/   \/_____/   \/_____/   \/_/

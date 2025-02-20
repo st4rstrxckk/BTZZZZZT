@@ -18,7 +18,7 @@ android {
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8 //used to be 1_8 < ^
     }
     namespace = 'com.qualcomm.ftcrobotcontroller'
 }

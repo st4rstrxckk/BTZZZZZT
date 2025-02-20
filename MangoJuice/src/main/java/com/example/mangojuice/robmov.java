@@ -18,11 +18,9 @@ public class robmov {
                         .lineToConstantHeading(new Vector2d(-35, -50))
                         .splineToLinearHeading(new Pose2d(-50,-50,Math.toRadians(45)),Math.toRadians(-40))
                         .lineToConstantHeading(new Vector2d(-54, -54)) //preload dropped
+                        .waitSeconds(1)
 
-                        .splineToLinearHeading(new Pose2d(-31,-33,Math.toRadians(180)),Math.toRadians(0)) //to B1
-                        .lineToConstantHeading(new Vector2d(-30,-10))
 
-                        .back(7)
 
 
 

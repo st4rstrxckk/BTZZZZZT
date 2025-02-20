@@ -29,11 +29,14 @@
 
 package gross;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad1;
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import gross.TECHMAP;
 
 
 /**
@@ -57,13 +60,8 @@ public class teweop extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-    botmap robot   = new botmap();
-
+    TECHMAP robot   = new TECHMAP();
     double SpeedAdjust = 1;
-
-   
-
-
     double toggleTime = .25;
     ElapsedTime toggle = new ElapsedTime(); //STOP
 
@@ -73,18 +71,14 @@ public class teweop extends LinearOpMode {
 
         robot.init(hardwareMap);
 
-
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
 
         //init lift motorrs
         robot.L.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.R.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+       // robot.R.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //robot.leftClaw.setPosition(L_OPEN);
-
-
-
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -103,7 +97,6 @@ public class teweop extends LinearOpMode {
             drive();
 
 
-
             if (gamepad2.dpad_up) {
                 HIGH();
             } else if (gamepad2.dpad_left) {
@@ -117,21 +110,38 @@ public class teweop extends LinearOpMode {
             }
 
            
-            }
-
-
-
-    
+        }
 
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             //telemetry.addData("Endgame:", endgame);
             telemetry.update();
-        }
+    }
+}
+
+
+    //TODO: put in an auto NVM I BROKW IT
+
+//tune lift positions
+
+    public void START_POS(){
+    lift(230);
     }
 
+public void LOW(){
+    lift(1208);
+}
 
-    //TODO: put in an auto
+public void MID(){
+    lift(2078);
+}
+
+public void HIGH(){
+    lift(2900);
+}
+
+
     public void lift(double counts) {
+
         int newTarget;
         // Ensure that the opmode is still active
         if (opModeIsActive()) {
@@ -139,21 +149,21 @@ public class teweop extends LinearOpMode {
             newTarget = (int) counts;
             //inches *
             robot.L.setTargetPosition(newTarget);
-            robot.R.setTargetPosition(newTarget);
+           // robot.R.setTargetPosition(newTarget);
 
             // Turn On RUN_TO_POSITION
             robot.L.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            robot.R.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+           // robot.R.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             // reset the timeout time and start motion.
             runtime.reset();
             robot.L.setPower(Math.abs(-1)); //left arm positive
-            robot.R.setPower(Math.abs(1)); //right arm negative
+            //robot.R.setPower(Math.abs(1)); //right arm negative
 
             while (opModeIsActive()
                     //&& (runtime.seconds() < timeoutS)
                     &&
-                    (robot.larm.isBusy())) {
+                    (robot.L.isBusy())) {
                 // Display it for the driver.
                 telemetry.addData("Path1", "Running to %7d :%7d");
                 telemetry.addData("Path2", "Running at %7d :%7d");
@@ -163,61 +173,42 @@ public class teweop extends LinearOpMode {
         }
     }
 
-   
-
-    public void grab (){
-        robot.Lint.setPower(1);
-        robot.Rint.setPower(1);
-        //drop intake 180
-        dropVar = robot.L.getCurrentPosition() - 180;  //L was larm on both i might fix the naming conventions later i kinda hate it lol
-        lift(dropVar);
-        robot.Rint.setPower(0);
-        robot.Lint.setPower(0);
-
-        liftVar = robot.L.getCurrentPosition() + 380;
-        lift(liftVar);
-        if (gamepad1.left_trigger==1){
-            robot.Lint.setPower(-1);
-            robot.Rint.setPower(-1); }
-    }
-
-    //tune lift positions
-
-    public void START_POS(){
-        lift(230);
-    }
-
-    public void LOW(){
-        lift(1208);
-    }
-
-    public void MID(){
-        lift(2078);
-    }
-
-    public void HIGH(){
-        lift(2900);
-    }
-
-    public void GROUND(){
-
-    }
 
 
-//TODO: change the drive eq to mecdrive one 
+
+
+
+//TODO: change the drive eq to mecdrive one
 
     private void drive() {
-        robot.leftFront.setPower((-gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x) / SpeedAdjust);
-        robot.rightFront.setPower((-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) / SpeedAdjust);
-        robot.leftBack.setPower((-gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) / SpeedAdjust);
-        robot.rightBack.setPower((-gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x) / SpeedAdjust);
 
+
+        double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
+        double x = gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
+        double rx = gamepad1.right_stick_x;
+
+        // Denominator is the largest motor power (absolute value) or 1
+        // This ensures all the powers maintain the same ratio,
+        // but only if at least one is out of the range [-1, 1]
+        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+        double frontLeftPower = -(y + x + rx) / denominator;
+        double backLeftPower = (y - x + rx) / denominator;
+        double frontRightPower = (y - x - rx) / denominator;
+        double backRightPower = -(y + x - rx) / denominator;
+
+        robot.leftFront.setPower(frontLeftPower*1);
+        robot.leftBack.setPower(backLeftPower*1);
+        robot.rightFront.setPower(frontRightPower*1);
+        robot.rightBack.setPower(backRightPower*1);
+
+
+        //todo idk why this doesnt work :(
         if (gamepad1.left_bumper) {
-            SpeedAdjust = 4;
+             SpeedAdjust = 4;
         } else if (gamepad1.right_bumper) {
             SpeedAdjust = 1;
         }
     }
 
 
-}
+

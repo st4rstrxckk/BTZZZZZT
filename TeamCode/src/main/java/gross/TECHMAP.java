@@ -1,13 +1,17 @@
 
 package gross;
 
+
+import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.arcrobotics.ftclib.controller.PIDController;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 
 /**
@@ -20,8 +24,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 //TODO: Double check hw map bc idk if the directions are right
 
+
 @Config
-public class botmap {
+public class TECHMAP {
 
     
     /* Public OpMode members. */
@@ -31,7 +36,7 @@ public class botmap {
     public DcMotor rightBack = null;
 
 
-     public DcMotor lift = null;
+     public DcMotor L = null;
     public DcMotor intake = null;
     public DcMotor hang = null;
     public DcMotor hang2 = null;
@@ -53,9 +58,22 @@ public class botmap {
     private ElapsedTime period  = new ElapsedTime();
 
     /* Constructor */
-    public botmap(){
+    public TECHMAP(){
 
     }
+
+    public void setPIDFCoefficients(DcMotor.RunMode runMode, PIDFCoefficients coefficients) {
+        PIDFCoefficients compensatedCoefficients = new PIDFCoefficients(
+                .008,0,0,.06
+        );
+
+        L.setPIDFCoefficients(runMode, compensatedCoefficients);
+        for (DcMotorEx motor : motors) {
+            motor.setPIDFCoefficients(runMode, compensatedCoefficients);
+        }
+    }
+
+
 
     /* Initialize standard Hardware interfaces */
     public void init(HardwareMap ahwMap) {
@@ -70,10 +88,13 @@ public class botmap {
         leftBack  = hwMap.get(DcMotor.class, "backL");
         rightBack = hwMap.get(DcMotor.class, "backR");
 
+
+        //TODO: ADD THE LIFT??? WHERE IS THE LIFT
         wristL = hwMap.get(Servo.class, "wristL");
         wristR = hwMap.get(Servo.class, "wristR");
         bucket = hwMap.get(Servo.class, "bucket");
         horiz = hwMap.get(Servo.class, "horiz");
+        L = hwMap.get(DcMotor.class, "lift");
       //  turn = hwMap.get(Servo.class, "RE");
 
         leftFront.setDirection(DcMotor.Direction.REVERSE);
@@ -111,7 +132,7 @@ public class botmap {
         rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        L.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //
 
         // Define and initialize ALL installed servos.
